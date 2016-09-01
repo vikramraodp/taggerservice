@@ -1,0 +1,86 @@
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'spring-boot'
+apply plugin: 'war'
+
+sourceSets.main.resources.srcDirs = [ "src/resources/" ]
+sourceSets.main.resources.includes = [ "**/**" ]
+
+jar {
+    baseName = 'taggerservice'
+    version =  '0.1.0'
+    archiveName = "taggerservice.jar"
+}
+
+war {
+    archiveName = "taggerservice.war"
+}
+
+repositories {
+    mavenCentral()
+    apache {
+        url "https://repository.apache.org/content/repositories/snapshots"
+    }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile files('libs/stanford-postagger.jar')
+    compile files('libs/stanford-ner.jar')
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+    ext.cTakesVersion = '3.2.2'
+    compile("org.apache.ctakes:ctakes-type-system:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-utils:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-core:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-core-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-dictionary-lookup:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-dictionary-lookup-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-preprocessor:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-pos-tagger:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-pos-tagger-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-chunker:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-chunker-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-lvg:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-lvg-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-context-tokenizer:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-clinical-pipeline:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-ne-contexts:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-ne-contexts-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-assertion:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-assertion-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-assertion-zoner:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-assertion-zoner-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-constituency-parser:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-constituency-parser-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-coreference:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-coreference-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-drug-ner:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-drug-ner-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-side-effect:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-side-effect-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-smoking-status:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-smoking-status-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-dependency-parser:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-dependency-parser-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-relation-extractor:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-relation-extractor-res:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-temporal:$cTakesVersion")
+    compile("org.apache.ctakes:ctakes-temporal-res:$cTakesVersion")
+    compile("org.apache.uima:uimaj-core:2.4.0")
+    compile("org.apache.uima:uimafit-core:2.1.0")
+}
