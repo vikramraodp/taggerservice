@@ -16,6 +16,7 @@ import org.springframework.boot.context.web.SpringBootServletInitializer;
 // }
 
 @SpringBootApplication
+@ComponentScan(basePackages = "com.virginia")
 public class Application extends SpringBootServletInitializer {
 
     @Override

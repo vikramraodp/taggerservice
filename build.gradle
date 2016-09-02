@@ -29,21 +29,32 @@ war {
 
 repositories {
     mavenCentral()
-    apache {
-        url "https://repository.apache.org/content/repositories/snapshots"
+    maven {
+        url "https://repository.apache.org/content/repositories/snapshots/"
     }
 }
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+configurations {
+ compile.exclude group:'ch.qos.logback'
+ compile.exclude module: 'spring-boot-starter-logging'
+}
+
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web")
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile("org.springframework.boot:spring-boot-starter-web") {
+      exclude module: 'org.springframework.boot:spring-boot-starter-logging'
+      exclude module: 'org.springframework.boot:spring-boot-starter-log4j'
+    }
+    testCompile('org.springframework.boot:spring-boot-starter-test') {
+      exclude module: 'org.springframework.boot:spring-boot-starter-logging'
+      exclude module: 'org.springframework.boot:spring-boot-starter-log4j'
+    }
     compile files('libs/stanford-postagger.jar')
     compile files('libs/stanford-ner.jar')
     providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
-    ext.cTakesVersion = '3.2.2'
+    ext.cTakesVersion = '3.2.3-SNAPSHOT'
     compile("org.apache.ctakes:ctakes-type-system:$cTakesVersion")
     compile("org.apache.ctakes:ctakes-utils:$cTakesVersion")
     compile("org.apache.ctakes:ctakes-core:$cTakesVersion")
