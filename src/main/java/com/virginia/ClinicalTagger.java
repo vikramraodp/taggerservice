@@ -72,6 +72,9 @@ public class ClinicalTagger {
       Collection<IdentifiedAnnotation> annotations = JCasUtil.select(jcas,IdentifiedAnnotation.class);
       for (IdentifiedAnnotation a : annotations) {
         String annotationName = a.getType().getShortName();
+        annotationName = annotationName.replace("Mention","");
+        annotationName = annotationName.replace("Annotation","");
+
         Tag tag = new Tag(a.getCoveredText(),annotationName);
         tags.add(tag);
 
