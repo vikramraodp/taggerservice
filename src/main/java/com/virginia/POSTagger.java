@@ -14,9 +14,15 @@ import java.util.ArrayList;
 @RestController
 public class POSTagger {
 
+    static MaxentTagger tagger;
+
+    static{
+        tagger =  new MaxentTagger("models/english-bidirectional-distsim.tagger");
+    }
+
     @RequestMapping(value = "/pos", method = RequestMethod.POST, consumes="application/json")
     public List<Tag> tag(@RequestBody Monologue im) {
-        MaxentTagger tagger =  new MaxentTagger("models/english-bidirectional-distsim.tagger");
+        
         String sent = im.getMonologue();
         String[] parts = sent.split("\\s+");
         List<HasWord> wdList = new ArrayList<HasWord>(parts.length);

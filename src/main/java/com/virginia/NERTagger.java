@@ -19,10 +19,15 @@ import java.util.ArrayList;
 @RestController
 public class NERTagger {
 
-    @RequestMapping(value  = "/ner", method = RequestMethod.POST, consumes="application/json")
-    public List<Tag> tag(@RequestBody Monologue im) {
+    static AbstractSequenceClassifier classifier;
+
+    static{
         String serializedClassifier = "classifiers/english.all.3class.distsim.crf.ser.gz";
-        AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
+        classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
+    }
+
+    @RequestMapping(value  = "/ner", method = RequestMethod.POST, consumes="application/json")
+    public List<Tag> tag(@RequestBody Monologue im) {        
         String sent = im.getMonologue();
         String[] parts = sent.split("\\s+");
         List<HasWord> wdList = new ArrayList<HasWord>(parts.length);
