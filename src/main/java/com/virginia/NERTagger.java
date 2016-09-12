@@ -16,18 +16,36 @@ import edu.stanford.nlp.ling.HasWord;
 import java.util.List;
 import java.util.ArrayList;
 
+import edu.stanford.nlp.ie.ClassifierCombiner;
+import org.apache.log4j.Logger;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 @RestController
 public class NERTagger {
 
+    private static final Logger LOGGER = Logger.getLogger(NERTagger.class);
     static AbstractSequenceClassifier classifier;
 
     static{
         String serializedClassifier = "classifiers/english.all.3class.distsim.crf.ser.gz";
-        classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
+        String trainedClassifier = "classifiers/demographics-ner-model.ser.gz";
+        //classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
+        try {
+          classifier = new ClassifierCombiner(serializedClassifier,trainedClassifier);
+        } catch(FileNotFoundException fnf) {
+          LOGGER.error("cctor(): " + ExceptionUtils.getStackTrace(fnf));
+          classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
+        } catch(IOException ioe) {
+          LOGGER.error("cctor(): " + ExceptionUtils.getStackTrace(ioe));
+          classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
+        }
     }
 
     @RequestMapping(value  = "/ner", method = RequestMethod.POST, consumes="application/json")
-    public List<Tag> tag(@RequestBody Monologue im) {        
+    public List<Tag> tag(@RequestBody Monologue im) {
         String sent = im.getMonologue();
         String[] parts = sent.split("\\s+");
         List<HasWord> wdList = new ArrayList<HasWord>(parts.length);
