@@ -165,7 +165,7 @@ public class CTakesPipeline {
   public static class RemoveExcludedAnnotations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
 
       private static final Logger LOGGER = Logger.getLogger(RemoveExcludedAnnotations.class);
-      private static HashMap<String, Object> exclusionLookup = null;
+      private static HashMap<String, List<String>> exclusionLookup = null;
 
       @Override
       public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -197,18 +197,16 @@ public class CTakesPipeline {
       private boolean isExcluded(IdentifiedAnnotation annotation) throws IOException, ClassNotFoundException, URISyntaxException {
         loadExclusionLookup();
 
-        boolean isExcluded = false;
-
         String[] tmp = annotation.getClass().getName().split("\\.");
         String semGroup = tmp[tmp.length-1];
         String text = getDisplayText(annotation);
 
-        ArrayList<String> annotationEx = (ArrayList<String>)exclusionLookup.get(text);
-        if(annotationEx != null) {
-          isExcluded = annotationEx.contains(semGroup);
+        List<String> exclusions = exclusionLookup.get(semGroup);
+        if(exclusions == null) {
+          return false;
+        } else {
+          return exclusions.contains(text);
         }
-
-        return isExcluded;
       }
 
       private void loadExclusionLookup() throws IOException, ClassNotFoundException, URISyntaxException {
@@ -224,7 +222,7 @@ public class CTakesPipeline {
           FileInputStream f = new FileInputStream(file);
           ObjectInputStream s = new ObjectInputStream(f);
 
-          exclusionLookup = (HashMap<String, Object>) s.readObject();
+          exclusionLookup = (HashMap<String, List<String>>) s.readObject();
           s.close();
         }
       }
