@@ -135,6 +135,7 @@ public class CTakesPipeline {
 
     //builder.add( AnalysisEngineFactory.createEngineDescription( RemoveEnclosedAnnotations.class ) );
     builder.add( AnalysisEngineFactory.createEngineDescription( RemoveExcludedAnnotations.class ) );
+    builder.add( AnalysisEngineFactory.createEngineDescription( RemoveDuplicateAnnotations.class ) );
 
 		return builder;
 	}
@@ -241,6 +242,65 @@ public class CTakesPipeline {
         }
         return text;
       }
+  }
+
+  public static class RemoveDuplicateAnnotations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+
+    private static final Logger LOGGER = Logger.getLogger(RemoveEnclosedAnnotations.class);
+
+    @Override
+    public void process(JCas jCas) throws AnalysisEngineProcessException {
+      List<Class<? extends IdentifiedAnnotation>> classes = getAnnotationClasses(jCas);
+      HashMap<String,String> foundAnnotations = new HashMap<String,String>();
+      HashMap<String,String> foundText = new HashMap<String,String>();
+
+      for(Class<? extends IdentifiedAnnotation> annClass : classes) {
+        String[] tmp = annClass.getName().split("\\.");
+        String semGroup = tmp[tmp.length-1];
+
+        foundAnnotations.clear();
+        foundText.clear();
+
+        List<IdentifiedAnnotation> annotations = new ArrayList<>(JCasUtil.select(jCas, annClass));
+        for(int i = annotations.size()-1; i >= 0; i--){
+          IdentifiedAnnotation ann = annotations.get(i);
+          String text = getDisplayText(ann);
+          if(foundAnnotations.get(text) != null || foundText.get(ann.getCoveredText()) != null) {
+            annotations.remove(i);
+            ann.removeFromIndexes();
+          } else {
+            foundAnnotations.put(text,"true");
+            foundText.put(ann.getCoveredText(),"true");
+          }
+        }
+      }
+    }
+
+    private List<Class<? extends IdentifiedAnnotation>> getAnnotationClasses(JCas jCas) throws AnalysisEngineProcessException {
+      List<Class<? extends IdentifiedAnnotation>> classes = new ArrayList<Class<? extends IdentifiedAnnotation>>();
+      List<IdentifiedAnnotation> annotations = new ArrayList<>(JCasUtil.select(jCas, IdentifiedAnnotation.class));
+      for(IdentifiedAnnotation annotation : annotations) {
+        if(!classes.contains(annotation.getClass())) {
+          classes.add(annotation.getClass());
+        }
+      }
+      return classes;
+    }
+
+    private String getDisplayText(IdentifiedAnnotation a) {
+      String text = a.getCoveredText();
+      FSArray ontologyConcepts = a.getOntologyConceptArr();
+      if(ontologyConcepts != null) {
+        for (int i = 0; i < ontologyConcepts.size(); ++i) {
+          if(ontologyConcepts.get(i) instanceof UmlsConcept) {
+            UmlsConcept concept = (UmlsConcept)ontologyConcepts.get(i);
+            text = concept.getPreferredText();
+            break;
+          }
+        }
+      }
+      return text;
+    }
   }
 
   public static class RemoveEnclosedAnnotations extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {

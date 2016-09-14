@@ -110,8 +110,15 @@ public class ClassifiedAnnotation {
 
   public void addAnnotation(IdentifiedAnnotation annotation) {
     String text = getDisplayText(annotation);
+    if(text == null || text.length() == 0) {
+      unclassifedAnnotations.add(new UnclassifiedAnnotation(annotation));
+      return;
+    }
+
     if(annotation.getPolarity() < 0) {
+      if(!StringUtils.startsWithIgnoreCase(text,"No")) {
         text = "No " + text;
+      }
     }
     if(annotation instanceof SignSymptomMention &&
           !(StringUtils.containsIgnoreCase(text,"history") ||
@@ -131,6 +138,10 @@ public class ClassifiedAnnotation {
   }
 
   protected String addAnnotationInternal(String baseAnnotation, String annotation) {
+    if(StringUtils.containsIgnoreCase(baseAnnotation, annotation)) {
+      return baseAnnotation;
+    }
+
     StringBuffer newAnnotation = new StringBuffer();
     newAnnotation.append(baseAnnotation);
     if(newAnnotation.length() > 0) {
