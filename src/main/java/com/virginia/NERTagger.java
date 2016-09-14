@@ -77,7 +77,18 @@ public class NERTagger {
           jcas.setDocumentText(sent);
           pipeline.process(jcas);
           Collection<Sentence> sentences = JCasUtil.select(jcas,Sentence.class);
+
+          boolean foundPerson = false;
+          boolean foundAge = false;
+          boolean foundGender = false;
+          boolean foundLocation = false;
+
           for (Sentence sentence : sentences) {
+
+            if(foundPerson && foundAge && foundGender && foundLocation) {
+              break;
+            }
+
             LOGGER.info("tag(): " + sentence.getCoveredText());
             Collection<BaseToken> tokens = JCasUtil.selectCovered(BaseToken.class, sentence);
             List<HasWord> wdList = new ArrayList<HasWord>(tokens.size());
@@ -90,7 +101,27 @@ public class NERTagger {
             for(CoreMap item : tagging) {
                 wd = item.get(CoreAnnotations.TextAnnotation.class);
                 annot = item.get(CoreAnnotations.AnswerAnnotation.class);
+                if(annot.equals("AGE") && foundAge) {
+                  continue;
+                }
+                if(annot.equals("GENDER") && foundGender) {
+                  continue;
+                }
+
                 tags.add(new Tag(wd,annot));
+
+                if(annot.equals("PERSON")) {
+                  foundPerson = true;
+                }
+                if(annot.equals("AGE")) {
+                  foundAge = true;
+                }
+                if(annot.equals("GENDER")) {
+                  foundGender = true;
+                }
+                if(annot.equals("LOCATION")) {
+                  foundLocation = true;
+                }
             }
           }
           jcas.reset();
